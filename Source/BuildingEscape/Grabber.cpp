@@ -69,7 +69,6 @@ void UGrabber::Grab()
 
 void UGrabber::Release()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Release"));
 	PhysicsHandle->ReleaseComponent();
 }
 
@@ -108,11 +107,6 @@ FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 
 	// See what hits, is it something player can pick up?
 	AActor *ActorHit = Hit.GetActor();
-
-	if (ActorHit)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hitting: %s"), *ActorHit->GetName());
-	}
 
 	return Hit;
 }
