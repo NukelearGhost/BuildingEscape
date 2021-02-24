@@ -49,17 +49,19 @@ void UGrabber::FindPhysicsHandle()
 
 void UGrabber::Grab()
 {
-
-	FVector LineTraceEnd = GetPlayerReach();
-
 	//Ray-cast when the player tries to grab something
 	FHitResult HitResult = GetFirstPhysicsBodyInReach();
+	FVector LineTraceEnd = GetPlayerReach();
+	AActor *ActorHit = HitResult.GetActor();
 	UPrimitiveComponent *ComponentToGrab = HitResult.GetComponent();
 
 	// If we hit something then attach the physics handle
-	if (HitResult.GetActor())
+	if (ActorHit)
 	{
-		// TODO attach physics handle
+		if (!PhysicsHandle)
+		{
+			return;
+		}
 		PhysicsHandle->GrabComponentAtLocation(
 			ComponentToGrab,
 			NAME_None,
@@ -78,7 +80,11 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	FVector LineTraceEnd = GetPlayerReach();
-	// If the physics handle is attached,
+	// If the physics handle is attached
+	if (!PhysicsHandle)
+	{
+		return;
+	}
 	if (PhysicsHandle->GrabbedComponent)
 	{
 		// Move the object we are holding.
