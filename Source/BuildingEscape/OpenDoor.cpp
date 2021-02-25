@@ -24,8 +24,12 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentYaw = GetOwner()->GetActorRotation().Yaw;
-	InitialYaw = GetOwner()->GetActorRotation().Yaw;
+	InitialYaw = CurrentYaw;
 	OpenAngle += InitialYaw;
+
+	InitialPos = GetOwner()->GetActorLocation().Z;
+	CurrentPos = InitialPos;
+	VerticalOpening += InitialPos;
 
 	FindPressurePlate();
 	FindAudioComponent();
@@ -38,7 +42,7 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (TotalMassOfActors() > PressurePlateThresholdMass)
+	if (TotalMassOfActors() >= PressurePlateThresholdMass)
 	{
 		OpenDoor(DeltaTime);
 		DoorLastOpened = GetWorld()->GetTimeSeconds();
@@ -55,10 +59,21 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 void UOpenDoor::OpenDoor(float DeltaTime)
 {
 
-	CurrentYaw = FMath::Lerp(CurrentYaw, OpenAngle, DeltaTime * DoorOpenSpeed);
-	FRotator DoorRotation = GetOwner()->GetActorRotation();
-	DoorRotation.Yaw = CurrentYaw;
-	GetOwner()->SetActorRotation(DoorRotation);
+	if (bVerticalDoor)
+	{
+
+		CurrentPos = FMath::Lerp(CurrentPos, VerticalOpening, DeltaTime * DoorOpenSpeed);
+		FVector DoorPos = GetOwner()->GetActorLocation();
+		DoorPos.Z = CurrentPos;
+		GetOwner()->SetActorLocation(DoorPos);
+	}
+	else
+	{
+		CurrentYaw = FMath::Lerp(CurrentYaw, OpenAngle, DeltaTime * DoorOpenSpeed);
+		FRotator DoorRotation = GetOwner()->GetActorRotation();
+		DoorRotation.Yaw = CurrentYaw;
+		GetOwner()->SetActorRotation(DoorRotation);
+	}
 
 	if (!AudioComponent)
 	{
@@ -75,11 +90,21 @@ void UOpenDoor::OpenDoor(float DeltaTime)
 
 void UOpenDoor::CloseDoor(float DeltaTime)
 {
+	if (bVerticalDoor)
+	{
+		CurrentPos = FMath::Lerp(CurrentPos, InitialPos, DeltaTime * DoorCloseSpeed);
+		FVector DoorPos = GetOwner()->GetActorLocation();
+		DoorPos.Z = CurrentPos;
+		GetOwner()->SetActorLocation(DoorPos);
+	}
+	else
+	{
 
-	CurrentYaw = FMath::Lerp(CurrentYaw, InitialYaw, DeltaTime * DoorCloseSpeed);
-	FRotator DoorRotation = GetOwner()->GetActorRotation();
-	DoorRotation.Yaw = CurrentYaw;
-	GetOwner()->SetActorRotation(DoorRotation);
+		CurrentYaw = FMath::Lerp(CurrentYaw, InitialYaw, DeltaTime * DoorCloseSpeed);
+		FRotator DoorRotation = GetOwner()->GetActorRotation();
+		DoorRotation.Yaw = CurrentYaw;
+		GetOwner()->SetActorRotation(DoorRotation);
+	}
 
 	if (!AudioComponent)
 	{

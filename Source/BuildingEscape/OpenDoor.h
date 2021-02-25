@@ -54,11 +54,20 @@ private:
 	UPROPERTY(EditAnywhere)
 	float PressurePlateThresholdMass = 60.f;
 
+	UPROPERTY(EditAnywhere)
+	bool bVerticalDoor = false;
+
+	UPROPERTY(EditAnywhere)
+	float VerticalOpening;
+
 	UPROPERTY()
 	UAudioComponent *AudioComponent = nullptr;
 
 	float CurrentYaw;
 	float InitialYaw;
+
+	float InitialPos;
+	float CurrentPos;
 
 	float DoorLastOpened = 0.f;
 };
